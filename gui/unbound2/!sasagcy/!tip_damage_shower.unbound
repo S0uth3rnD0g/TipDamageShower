@@ -1,0 +1,236 @@
+(def constant SHIP_HP_TRANSFORM_COLORS_TIPDAMAGE
+	{ redMultiplier:1,greenMultiplier:1,blueMultiplier:1,alphaMultiplier:1,redOffset:-18,greenOffset:-79,blueOffset:19,alphaOffset:0 }
+)
+
+(def element OwnHealthBar (_shipInfo:gfx, _entityId:number = 0) layout=true
+	(name = 'vehicle_hp_text')
+	(scope
+		(var entityId:number = "_entityId")
+		(var entity:gfx = "$datahub.getEntity(entityId)")
+		(var shipInfo:gfx = "_shipInfo")
+		(var healthComponent:gfx = "entity.health")
+		(var maxHealth:number = "healthComponent.max" (event "healthComponent.evMaxChanged"))
+		(var isAlive:bool = "healthComponent.isAlive" (event "healthComponent.evIsAliveChanged"))
+		
+		(var shortName:str = "shipInfo.ship.shortName")
+	)
+	
+	(style 
+		(width = "BAR_IMAGE_WIDTH")
+		(height = "BAR_IMAGE_HEIGHT")
+		(align="center|middle")
+	)
+
+	
+	(block
+		(style
+			(backgroundSize = "autosize")
+			(bind backgroundImage "'img://gui/ship_bars/'  +  shortName  +  (isAlive  ?  '_h_bg.png'  :  '_h_bgdead.png')")
+			(align="center|middle")
+		)
+
+		(element OwnHealthBarRegen entity="entity" shortName="shortName" maxHealth="maxHealth"
+			(bind visible "isAlive")
+		)
+
+		(element OwnHealthBarFX entity="entity" shortName="shortName"
+			(bind visible "isAlive")
+		)
+
+		(element OwnHealthBarValue entity="entity" shortName="shortName"
+			(bind visible "isAlive")
+		)
+		# mod
+		(element TipDamagedValue entity="entity" shortName="shortName"
+			(bind visible "isAlive")
+		)
+		# end mod
+		(controller $Instance renderer = 'ShipStatesBar'
+			(bind enabled "isAlive")
+		)
+	)
+)
+
+# mod
+(def element TipDamagedValue (entity:gfx, shortName:str) layout=true
+	(scope
+		(macro HEALTH_PERCENT_AND_ALIVE "entity")
+		
+		(var damagedBurnModuleEntity:gfx = "$datahub.getPrimaryEntity(CC.damagedModule, SC.Battle.DAMAGE_MODULES.BURN)")
+		(var damagedBurnModule:gfx = "damagedBurnModuleEntity.damagedModule")
+
+		(event evBurnCountChanged)
+		(var damagedBurnModulesCount:number = "damagedBurnModule.damagedModulesCount" watch=false)
+		(bind damagedBurnModulesCount "$event.damagedBurnModulesCount" init=false watch=false (event "evBurnCountChanged"))
+		(var prevDamagedBurnModulesCount:number = "0" watch=false)
+		(bind prevDamagedBurnModulesCount "$event.prevDamagedBurnModulesCount" init=false watch=false (event "evBurnCountChanged"))
+		(dispatch evBurnCountChanged args = "{damagedBurnModulesCount: damagedBurnModule.damagedModulesCount, prevDamagedBurnModulesCount: damagedBurnModulesCount}"  (event "damagedBurnModule.evDamagedModulesCountChanged"))
+		
+		
+		(var damagedFloodModuleEntity:gfx = "$datahub.getPrimaryEntity(CC.damagedModule, SC.Battle.DAMAGE_MODULES.FLOOD)")
+		(var damagedFloodModule:gfx = "damagedFloodModuleEntity.damagedModule")
+		
+		(event evFloodCountChanged)
+		(var damagedFloodModulesCount:number = "damagedFloodModule.damagedModulesCount" watch=false)
+		(bind damagedFloodModulesCount "$event.damagedFloodModulesCount" init=false watch=false (event "evFloodCountChanged"))
+		(var prevDamagedFloodModulesCount:number = "0" watch=false)
+		(bind prevDamagedFloodModulesCount "$event.prevDamagedFloodModulesCount" init=false watch=false (event "evFloodCountChanged"))
+		(dispatch evFloodCountChanged args = "{damagedFloodModulesCount: damagedFloodModule.damagedModulesCount, prevDamagedFloodModulesCount: damagedFloodModulesCount}"  (event "damagedFloodModule.evDamagedModulesCountChanged"))
+		
+		(var hasNoHazard:bool = "damagedBurnModulesCount == 0 && damagedFloodModulesCount == 0")
+		(var timerEntity:gfx = "$datahub.getSingleEntity(CC.timer)")
+		
+		(var ignitedTime1:number = "0" watch=false)
+		(var ignitedTime2:number = "0" watch=false)
+		(var ignitedTime3:number = "0" watch=false)
+		(var ignitedTime4:number = "0" watch=false)
+		
+		(bind ignitedTime1 "damagedBurnModulesCount - prevDamagedBurnModulesCount > 0 ? 
+								damagedBurnModulesCount >= 1 ? timerEntity.timer.currentTime : 0
+								: ignitedTime2" (event "damagedBurnModule.evDamagedModulesCountChanged"))
+		(bind ignitedTime2 "damagedBurnModulesCount - prevDamagedBurnModulesCount > 0 ? 
+								damagedBurnModulesCount >= 2 ? ignitedTime1 : 0
+								: ignitedTime3" (event "damagedBurnModule.evDamagedModulesCountChanged"))
+		(bind ignitedTime3 "damagedBurnModulesCount - prevDamagedBurnModulesCount > 0 ? 
+								damagedBurnModulesCount >= 3 ? ignitedTime2 : 0
+								: ignitedTime4" (event "damagedBurnModule.evDamagedModulesCountChanged"))
+		(bind ignitedTime4 "damagedBurnModulesCount - prevDamagedBurnModulesCount > 0 ? 
+								damagedBurnModulesCount >= 4 ? ignitedTime3 : 0
+								: 0" (event "damagedBurnModule.evDamagedModulesCountChanged"))
+								
+								
+		(var floodedTime1:number = "0" watch=false)
+		(var floodedTime2:number = "0" watch=false)
+		
+		(bind floodedTime1 "damagedFloodModulesCount - prevDamagedFloodModulesCount > 0 ? 
+								damagedFloodModulesCount >= 1 ? timerEntity.timer.currentTime : 0
+								: floodedTime2" (event "damagedFloodModule.evDamagedModulesCountChanged"))
+		(bind ignitedTime2 "damagedFloodModulesCount - prevDamagedFloodModulesCount > 0 ? 
+								damagedFloodModulesCount >= 2 ? floodedTime1 : 0
+								: 0" (event "damagedFloodModule.evDamagedModulesCountChanged"))
+
+		
+		(var modDataEntityWatcher:gfx = "$datahub.getPrimWatcher(CC.mods_DataComponent, 'sasagcy_TipDamageShower')")
+		(var modDataEntity:gfx = "modDataEntityWatcher.entity" (event "modDataEntityWatcher.event"))
+		(var modDataComponent:gfx = "modDataEntity ? modDataEntity.mods_DataComponent : null" )
+		(var modData:dict = "modDataComponent ? modDataComponent.data : null" (event "modDataComponent.evDataChanged"))
+		(var burnDurationTime:number = "modData && 'burnDurationTime' in modData ? modData.burnDurationTime : 0")
+		(var burnDPS:number = "modData && 'burnDPS' in modData ? modData.burnDPS : 0")
+		(var floodDurationTime:number = "modData && 'floodDurationTime' in modData ? modData.floodDurationTime : 0")
+		(var floodDPS:number = "modData && 'floodDPS' in modData ? modData.floodDPS : 0")
+		
+		
+		
+		(var burnRemainTime1:number =	"burnDurationTime + ignitedTime1 - timerEntity.timer.currentTime" (event "timerEntity.timer.evFrequent"))
+		(var burnRemainTime2:number =	"burnDurationTime + ignitedTime2 - timerEntity.timer.currentTime" (event "timerEntity.timer.evFrequent"))
+		(var burnRemainTime3:number =	"burnDurationTime + ignitedTime3 - timerEntity.timer.currentTime" (event "timerEntity.timer.evFrequent"))
+		(var burnRemainTime4:number =	"burnDurationTime + ignitedTime4 - timerEntity.timer.currentTime" (event "timerEntity.timer.evFrequent"))
+		
+		(bind burnRemainTime1 "burnRemainTime1 < 0 || ignitedTime1 == 0 ? 0 : burnRemainTime1")
+		(bind burnRemainTime2 "burnRemainTime2 < 0 || ignitedTime2 == 0 ? 0 : burnRemainTime1")
+		(bind burnRemainTime3 "burnRemainTime3 < 0 || ignitedTime3 == 0 ? 0 : burnRemainTime1")
+		(bind burnRemainTime4 "burnRemainTime4 < 0 || ignitedTime4 == 0 ? 0 : burnRemainTime1")
+		
+		
+		(var floodRemainTime1:number =	"floodDurationTime + floodedTime1 - timerEntity.timer.currentTime" (event "timerEntity.timer.evFrequent"))
+		(var floodRemainTime2:number =	"floodDurationTime + floodedTime2 - timerEntity.timer.currentTime" (event "timerEntity.timer.evFrequent"))
+		
+		(bind floodRemainTime1 "floodRemainTime1 < 0 || floodedTime1 == 0 ? 0 : floodRemainTime1")
+		(bind floodRemainTime2 "floodRemainTime2 < 0 || floodedTime2 == 0 ? 0 : floodRemainTime2")
+		
+		
+		(var tmpWidth:number = "100% * (healthPercent - burnDPS / 100 * (burnRemainTime1 + burnRemainTime2 + burnRemainTime3 + burnRemainTime4) - floodDPS /100 * (floodRemainTime1 + floodRemainTime2))")
+		(var healthDelta:number = "isOnboardingDone ? healthComponent.delta : FAKE_HEALTH_DELTA_PARTHP" (event "healthComponent.evDeltaChanged"))
+
+		(var resultWidth:number = "tmpWidth < 0 ? 0 : tmpWidth")
+		#(var currentWidth:number = "resultWidth" (event "damagedBurnModule.evDamagedModulesCountChanged")(event "damagedFloodModule.evDamagedModulesCountChanged"))
+		(var currentWidth:number = "resultWidth" watch = false)
+		(bind currentWidth "resultWidth")
+	)
+	#(block
+	#	(tf
+	#		(class $TextHUD16Bold)
+	#		(style (textColor = "0xFFFFFFFF"))
+	#		(bind text "resultWidth")
+	#	)
+	#)
+	
+	(style
+		(position = "absolute")
+		(left = 50%)
+		(marginLeft = -50%)
+		(backgroundSize = "autosize")
+		(bind backgroundImage "'img://gui/ship_bars/'  +  shortName  +  '_h.png'")	
+	)
+
+	(block
+		(bind visible "hasNoHazard")
+		(class $FullsizeAbsolute)
+		(style
+			(bind width "resultWidth")
+		)
+		(style (backgroundColor = 0x11000000))
+		(isMask = true)
+	)
+	(bind colorTransform "healthPercent > 0.8 ? SHIP_HP_TRANSFORM_COLORS.GREEN : healthPercent > 0.3 ? SHIP_HP_TRANSFORM_COLORS.YELLOW : SHIP_HP_TRANSFORM_COLORS.RED")
+	#(bind colorTransform "SHIP_HP_TRANSFORM_COLORS_TIPDAMAGE")
+)
+# end mod
+
+
+(def element OwnHealthBarValue (entity:gfx, shortName:str) layout=true
+	(scope
+		(macro HEALTH_PERCENT_AND_ALIVE "entity")
+		# mod
+		(var damagedBurnModuleEntity:gfx = "$datahub.getPrimaryEntity(CC.damagedModule, SC.Battle.DAMAGE_MODULES.BURN)")
+		(var damagedBurnModule:gfx = "damagedBurnModuleEntity.damagedModule")
+		(var damagedBurnModulesCount:number = "damagedBurnModule.damagedModulesCount" (event "damagedBurnModule.evDamagedModulesCountChanged"))
+		
+		(var damagedFloodModuleEntity:gfx = "$datahub.getPrimaryEntity(CC.damagedModule, SC.Battle.DAMAGE_MODULES.FLOOD)")
+		(var damagedFloodModule:gfx = "damagedFloodModuleEntity.damagedModule")
+		(var damagedFloodModulesCount:number = "damagedFloodModule.damagedModulesCount" (event "damagedFloodModule.evDamagedModulesCountChanged"))
+		(var hasNoHazard:bool = "damagedBurnModulesCount == 0 && damagedFloodModulesCount == 0")
+		# end mod
+		
+		(var resultWidth:number = "100% * healthPercent")
+		(var healthDelta:number = "isOnboardingDone ? healthComponent.delta : FAKE_HEALTH_DELTA_PARTHP" (event "healthComponent.evDeltaChanged"))
+
+		(var currentWidth:number = "resultWidth" watch=false)
+
+		(controller $Animation
+			(bindcall play
+							delay= "healthDelta >=0 ? HEALTH_ANI_DELAY : 0"
+							duration = "healthDelta >=0 ? HEALTH_ANI_MAX : HEALTH_ANI_MIN"
+							action="killAll"
+							watch = false
+							easing="Easing.quad_in"
+							from = "{ currentWidth: currentWidth }"
+							to = "{ currentWidth: resultWidth }"
+							(event "healthComponent.evChanged")
+							(event "healthComponent.evMaxChanged")
+							(event "healthComponent.evIsOnboardingDoneChanged")
+			)
+		)
+	)
+
+	(style
+		(position = "absolute")
+		(left = 50%)
+		(marginLeft = -50%)
+		(backgroundSize = "autosize")
+		(bind backgroundImage "'img://gui/ship_bars/'  +  shortName  +  '_h.png'")
+	)
+
+	(block
+		(class $FullsizeAbsolute)
+		(style
+			(bind width "currentWidth")
+		)
+		(style (backgroundColor = 0x11000000))
+		(isMask = true)
+	)
+	
+	# mod
+	(bind colorTransform "hasNoHazard ? (healthPercent > 0.8 ? SHIP_HP_TRANSFORM_COLORS.GREEN : healthPercent > 0.3 ? SHIP_HP_TRANSFORM_COLORS.YELLOW : SHIP_HP_TRANSFORM_COLORS.RED) : SHIP_HP_TRANSFORM_COLORS_TIPDAMAGE")
+	#end mod
+)
