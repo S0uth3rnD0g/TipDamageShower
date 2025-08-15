@@ -147,13 +147,6 @@
 		(var currentWidth:number = "resultWidth" watch = false)
 		(bind currentWidth "resultWidth")
 	)
-	#(block
-	#	(tf
-	#		(class $TextHUD16Bold)
-	#		(style (textColor = "0xFFFFFFFF"))
-	#		(bind text "resultWidth")
-	#	)
-	#)
 	
 	(style
 		(position = "absolute")
@@ -173,7 +166,6 @@
 		(isMask = true)
 	)
 	(bind colorTransform "healthPercent > 0.8 ? SHIP_HP_TRANSFORM_COLORS.GREEN : healthPercent > 0.3 ? SHIP_HP_TRANSFORM_COLORS.YELLOW : SHIP_HP_TRANSFORM_COLORS.RED")
-	#(bind colorTransform "SHIP_HP_TRANSFORM_COLORS_TIPDAMAGE")
 )
 # end mod
 

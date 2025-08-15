@@ -1,5 +1,5 @@
-API_VERSION = 'API_v1.0' # This is Mandatory!
-MOD_NAME = 'TipDamageShower' # Your Mod Name
+API_VERSION = 'API_v1.0'
+MOD_NAME = 'TipDamageShower'
 
 EXCEPTIONAL_SHIP_LIST = [
     # 'SHINANO',
@@ -57,8 +57,6 @@ class TipDamageShower(object):
         self._uiId = None
         
     def onBattleQuit(self, *args):
-        # Remove entity from DataHub
-        # Components in the entity will automatically be cleared
         ui.deleteUiElement(self._uiId)
         self._uiId = None
         
@@ -124,20 +122,12 @@ class TipDamageShower(object):
         signalBurnTimeMult = 0.8 if IY_exists else 1.0
         signalFloodTimeMult = 0.8 if JYB_exists else 1.0
 
-        #test = baseBurnDurationTime * modBurnTimeMult * skillTimeMult1 * skillTimeMult2 * signalBurnTimeMult
         data = dict(
             burnDurationTime = baseBurnDurationTime * modBurnTimeMult * skillTimeMult1 * skillTimeMult2 * signalBurnTimeMult,
             burnDPS = baseBurnDPS * skillDamageMult,
             floodDurationTime = baseFloodDurationTime * modFloodTimeMult * skillTimeMult1 * skillTimeMult2 * signalFloodTimeMult,
             floodDPS = baseFloodDPS * skillDamageMult,
         )
-        
-        #with open('test.txt', 'a') as file:
-        #    file.write('%s\n'%(vehicle.name))
-        #    file.write('%s\n'%(vehicle.subtype))
-        #    file.write('%s\n'%(test))
-            
-        
         ui.updateUiElementData(self._uiId, data)
 
 tipDamageShower = TipDamageShower()
