@@ -56,59 +56,69 @@
 	(scope
 		(macro HEALTH_PERCENT_AND_ALIVE "entity")
 		
+		# burn
 		(var damagedBurnModuleEntity:gfx = "$datahub.getPrimaryEntity(CC.damagedModule, SC.Battle.DAMAGE_MODULES.BURN)")
 		(var damagedBurnModule:gfx = "damagedBurnModuleEntity.damagedModule")
 
-		(event evBurnCountChanged)
+		(event evBurnCountUpdate)
 		(var damagedBurnModulesCount:number = "damagedBurnModule.damagedModulesCount" watch=false)
-		(bind damagedBurnModulesCount "$event.damagedBurnModulesCount" init=false watch=false (event "evBurnCountChanged"))
+		(bind damagedBurnModulesCount "$event.damagedBurnModulesCount" init=false watch=false (event "evBurnCountUpdate"))
 		(var prevDamagedBurnModulesCount:number = "0" watch=false)
-		(bind prevDamagedBurnModulesCount "$event.prevDamagedBurnModulesCount" init=false watch=false (event "evBurnCountChanged"))
-		(dispatch evBurnCountChanged args = "{damagedBurnModulesCount: damagedBurnModule.damagedModulesCount, prevDamagedBurnModulesCount: damagedBurnModulesCount}"  (event "damagedBurnModule.evDamagedModulesCountChanged"))
+		(bind prevDamagedBurnModulesCount "$event.prevDamagedBurnModulesCount" init=false watch=false (event "evBurnCountUpdate"))
+		(dispatch evBurnCountUpdate args = "{damagedBurnModulesCount: damagedBurnModule.damagedModulesCount, prevDamagedBurnModulesCount: damagedBurnModulesCount}"  (event "damagedBurnModule.evDamagedModulesCountChanged"))
 		
-		
-		(var damagedFloodModuleEntity:gfx = "$datahub.getPrimaryEntity(CC.damagedModule, SC.Battle.DAMAGE_MODULES.FLOOD)")
-		(var damagedFloodModule:gfx = "damagedFloodModuleEntity.damagedModule")
-		
-		(event evFloodCountChanged)
-		(var damagedFloodModulesCount:number = "damagedFloodModule.damagedModulesCount" watch=false)
-		(bind damagedFloodModulesCount "$event.damagedFloodModulesCount" init=false watch=false (event "evFloodCountChanged"))
-		(var prevDamagedFloodModulesCount:number = "0" watch=false)
-		(bind prevDamagedFloodModulesCount "$event.prevDamagedFloodModulesCount" init=false watch=false (event "evFloodCountChanged"))
-		(dispatch evFloodCountChanged args = "{damagedFloodModulesCount: damagedFloodModule.damagedModulesCount, prevDamagedFloodModulesCount: damagedFloodModulesCount}"  (event "damagedFloodModule.evDamagedModulesCountChanged"))
-		
-		(var hasNoHazard:bool = "damagedBurnModulesCount == 0 && damagedFloodModulesCount == 0")
-		(var timerEntity:gfx = "$datahub.getSingleEntity(CC.timer)")
-		
+		(event evBurnCountChanged)
 		(var ignitedTime1:number = "0" watch=false)
 		(var ignitedTime2:number = "0" watch=false)
 		(var ignitedTime3:number = "0" watch=false)
 		(var ignitedTime4:number = "0" watch=false)
 		
-		(bind ignitedTime1 "damagedBurnModulesCount - prevDamagedBurnModulesCount > 0 ? 
-								damagedBurnModulesCount >= 1 ? timerEntity.timer.currentTime : 0
-								: ignitedTime2" (event "damagedBurnModule.evDamagedModulesCountChanged"))
-		(bind ignitedTime2 "damagedBurnModulesCount - prevDamagedBurnModulesCount > 0 ? 
-								damagedBurnModulesCount >= 2 ? ignitedTime1 : 0
-								: ignitedTime3" (event "damagedBurnModule.evDamagedModulesCountChanged"))
-		(bind ignitedTime3 "damagedBurnModulesCount - prevDamagedBurnModulesCount > 0 ? 
-								damagedBurnModulesCount >= 3 ? ignitedTime2 : 0
-								: ignitedTime4" (event "damagedBurnModule.evDamagedModulesCountChanged"))
-		(bind ignitedTime4 "damagedBurnModulesCount - prevDamagedBurnModulesCount > 0 ? 
-								damagedBurnModulesCount >= 4 ? ignitedTime3 : 0
-								: 0" (event "damagedBurnModule.evDamagedModulesCountChanged"))
-								
-								
+		(bind ignitedTime1 "$event.ignitedTime1" init=false watch=false (event "evBurnCountChanged"))
+		(bind ignitedTime2 "$event.ignitedTime2" init=false watch=false (event "evBurnCountChanged"))
+		(bind ignitedTime3 "$event.ignitedTime3" init=false watch=false (event "evBurnCountChanged"))
+		(bind ignitedTime4 "$event.ignitedTime4" init=false watch=false (event "evBurnCountChanged"))
+							
+		
+		(dispatch evBurnCountChanged args = "{
+				ignitedTime1: damagedBurnModulesCount - prevDamagedBurnModulesCount > 0 ? damagedBurnModulesCount >= 1 ? timerEntity.timer.currentTime : 0
+							: damagedBurnModulesCount == 0 ? 0 : ignitedTime1, 
+				ignitedTime2: damagedBurnModulesCount - prevDamagedBurnModulesCount > 0 ? damagedBurnModulesCount >= 2 ? ignitedTime1 : 0
+							: damagedBurnModulesCount == 0 ? 0 : ignitedTime2, 
+				ignitedTime3: damagedBurnModulesCount - prevDamagedBurnModulesCount > 0 ? damagedBurnModulesCount >= 3 ? ignitedTime2 : 0
+							: damagedBurnModulesCount == 0 ? 0 : ignitedTime3, 
+				ignitedTime4: damagedBurnModulesCount - prevDamagedBurnModulesCount > 0 ? damagedBurnModulesCount >= 4 ? ignitedTime3 : 0
+							: damagedBurnModulesCount == 0 ? 0 : ignitedTime4
+			}" (event "evBurnCountUpdate"))
+		
+		
+		# flood
+		(var damagedFloodModuleEntity:gfx = "$datahub.getPrimaryEntity(CC.damagedModule, SC.Battle.DAMAGE_MODULES.FLOOD)")
+		(var damagedFloodModule:gfx = "damagedFloodModuleEntity.damagedModule")	
+		
+		(event evFloodCountUpdate)
+		(var damagedFloodModulesCount:number = "damagedFloodModule.damagedModulesCount" watch=false)
+		(bind damagedFloodModulesCount "$event.damagedFloodModulesCount" init=false watch=false (event "evFloodCountUpdate"))
+		(var prevDamagedFloodModulesCount:number = "0" watch=false)
+		(bind prevDamagedFloodModulesCount "$event.prevDamagedFloodModulesCount" init=false watch=false (event "evFloodCountUpdate"))
+		(dispatch evFloodCountUpdate args = "{damagedFloodModulesCount: damagedFloodModule.damagedModulesCount, prevDamagedFloodModulesCount: damagedFloodModulesCount}"  (event "damagedFloodModule.evDamagedModulesCountChanged"))
+		
+		(event evFloodCountChanged)
 		(var floodedTime1:number = "0" watch=false)
 		(var floodedTime2:number = "0" watch=false)
 		
-		(bind floodedTime1 "damagedFloodModulesCount - prevDamagedFloodModulesCount > 0 ? 
-								damagedFloodModulesCount >= 1 ? timerEntity.timer.currentTime : 0
-								: floodedTime2" (event "damagedFloodModule.evDamagedModulesCountChanged"))
-		(bind ignitedTime2 "damagedFloodModulesCount - prevDamagedFloodModulesCount > 0 ? 
-								damagedFloodModulesCount >= 2 ? floodedTime1 : 0
-								: 0" (event "damagedFloodModule.evDamagedModulesCountChanged"))
-
+		(bind floodedTime1 "$event.floodedTime1" init=false watch=false (event "evFloodCountChanged"))
+		(bind floodedTime2 "$event.floodedTime2" init=false watch=false (event "evFloodCountChanged"))
+							
+		(dispatch evFloodCountChanged args = "{
+				floodedTime1: damagedFloodModulesCount - prevDamagedFloodModulesCount > 0 ? damagedFloodModulesCount >= 1 ? timerEntity.timer.currentTime : 0
+							: damagedFloodModulesCount == 0 ? 0 : floodedTime1, 
+				floodedTime2: damagedFloodModulesCount - prevDamagedFloodModulesCount > 0 ? damagedFloodModulesCount >= 2 ? floodedTime1 : 0
+							: damagedFloodModulesCount == 0 ? 0 : floodedTime2
+			}" (event "evFloodCountUpdate"))
+		
+		
+		(var hasNoHazard:bool = "damagedBurnModulesCount == 0 && damagedFloodModulesCount == 0")
+		(var timerEntity:gfx = "$datahub.getSingleEntity(CC.timer)")
 		
 		(var modDataEntityWatcher:gfx = "$datahub.getPrimWatcher(CC.mods_DataComponent, 'sasagcy_TipDamageShower')")
 		(var modDataEntity:gfx = "modDataEntityWatcher.entity" (event "modDataEntityWatcher.event"))
@@ -127,9 +137,9 @@
 		(var burnRemainTime4:number =	"burnDurationTime + ignitedTime4 - timerEntity.timer.currentTime" (event "timerEntity.timer.evFrequent"))
 		
 		(bind burnRemainTime1 "burnRemainTime1 < 0 || ignitedTime1 == 0 ? 0 : burnRemainTime1")
-		(bind burnRemainTime2 "burnRemainTime2 < 0 || ignitedTime2 == 0 ? 0 : burnRemainTime1")
-		(bind burnRemainTime3 "burnRemainTime3 < 0 || ignitedTime3 == 0 ? 0 : burnRemainTime1")
-		(bind burnRemainTime4 "burnRemainTime4 < 0 || ignitedTime4 == 0 ? 0 : burnRemainTime1")
+		(bind burnRemainTime2 "burnRemainTime2 < 0 || ignitedTime2 == 0 ? 0 : burnRemainTime2")
+		(bind burnRemainTime3 "burnRemainTime3 < 0 || ignitedTime3 == 0 ? 0 : burnRemainTime3")
+		(bind burnRemainTime4 "burnRemainTime4 < 0 || ignitedTime4 == 0 ? 0 : burnRemainTime4")
 		
 		
 		(var floodRemainTime1:number =	"floodDurationTime + floodedTime1 - timerEntity.timer.currentTime" (event "timerEntity.timer.evFrequent"))
@@ -143,11 +153,9 @@
 		(var healthDelta:number = "isOnboardingDone ? healthComponent.delta : FAKE_HEALTH_DELTA_PARTHP" (event "healthComponent.evDeltaChanged"))
 
 		(var resultWidth:number = "tmpWidth < 0 ? 0 : tmpWidth")
-		#(var currentWidth:number = "resultWidth" (event "damagedBurnModule.evDamagedModulesCountChanged")(event "damagedFloodModule.evDamagedModulesCountChanged"))
 		(var currentWidth:number = "resultWidth" watch = false)
 		(bind currentWidth "resultWidth")
 	)
-	
 	(style
 		(position = "absolute")
 		(left = 50%)
