@@ -2,7 +2,6 @@ API_VERSION = 'API_v1.0'
 MOD_NAME = 'TipDamageShower'
 
 EXCEPTIONAL_SHIP_LIST = [
-    # 'SHINANO',
     'VYAZMA',
     'SEVASTOPOL',
     'SIEGFRIED',
@@ -11,6 +10,8 @@ EXCEPTIONAL_SHIP_LIST = [
     'MANTEUFFEL',
     'AMIRAL LARTIGUE',
     'MARSEILLE',
+    'ZHUGE\'S INVENTIONS',
+    'BA UTNAPISHTIM\'S SHIP',
     'BREST',
     'LE HAVRE',
     'VARESE',
@@ -23,6 +24,7 @@ EXCEPTIONAL_SHIP_LIST = [
     'BRENNUS',
     'HILDEBRAND',
     'PUERTO RICO',
+    'PUERTO RICO B',
     'STALINGRAD',
     'CARNOT',
     'ADMIRAL SCHRÖDER',
@@ -41,8 +43,9 @@ EXCEPTIONAL_SHIP_LIST = [
     'TOULON',
     'GOUDEN LEEUW',
     'SCHILL',
+    'SCHILL B',
     'ADMIRAL SCHEER',
-    'ADMIRAL REINHARD',
+    'DEUTSCHLAND',
     'JOHAN DE WITT'
 ]
 GRAF_SPEE_LIST = [
@@ -76,17 +79,17 @@ class TipDamageShower(object):
             baseBurnDPS = 0.3
             baseFloodDurationTime = 40
             baseFloodDPS = 0.375
-        elif (vehicle.subtype == 'Battleship') or (vehicle.name in EXCEPTIONAL_SHIP_LIST):
+        elif (vehicle.subtype == constants.ShipTypes.BATTLESHIP) or (vehicle.name in EXCEPTIONAL_SHIP_LIST):
             baseBurnDurationTime = 60
             baseBurnDPS = 0.3
             baseFloodDurationTime = 40
             baseFloodDPS = 0.5
-        elif vehicle.subtype == 'AirCarrier':
+        elif vehicle.subtype == constants.ShipTypes.AIRCARRIER:
             baseBurnDurationTime = 45
             baseBurnDPS = 0.3
             baseFloodDurationTime = 30
             baseFloodDPS = 0.25
-        elif vehicle.subtype == 'Submarine':
+        elif vehicle.subtype == constants.ShipTypes.SUBMARINE:
             baseBurnDurationTime = 30
             baseBurnDPS = 1
             baseFloodDurationTime = 30
@@ -108,8 +111,8 @@ class TipDamageShower(object):
             modBurnTimeMult *= 0.9
             modFloodTimeMult *= 0.9
         if (len(modernizations) >= 5) and (modernizations[4] is not None) and (modernizations[4].iconPath == 'url:../modernization_icons/icon_modernization_PCM049_Special_Mod_I_Hindenburg.png'):
-            modBurnTimeMult *= 0.6
-            modFloodTimeMult *= 0.3
+            modBurnTimeMult *= 0.5
+            modFloodTimeMult *= 0.5
         
         skillTimeMult1 = 0.85 if 'DefenceCritFireFlooding' in skillList else 1.0
         skillTimeMult2 = 1.25 if 'ApDamageBb' in skillList else 1.0
