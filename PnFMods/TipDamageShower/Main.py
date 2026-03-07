@@ -1,58 +1,6 @@
 API_VERSION = 'API_v1.0'
 MOD_NAME = 'TipDamageShower'
 
-EXCEPTIONAL_SHIP_LIST = [
-    'VYAZMA',
-    'SEVASTOPOL',
-    'SIEGFRIED',
-    'DEFENCE',
-    'PRINZ ADALBERT',
-    'MANTEUFFEL',
-    'AMIRAL LARTIGUE',
-    'MARSEILLE',
-    'ZHUGE\'S INVENTIONS',
-    'BA UTNAPISHTIM\'S SHIP',
-    'BREST',
-    'LE HAVRE',
-    'VARESE',
-    'MICHELANGELO',
-    'YOSHINO',
-    'YOSHINO B',
-    'AL AZUMA',
-    'AZUMA',
-    'AZUMA B',
-    'BRENNUS',
-    'HILDEBRAND',
-    'PUERTO RICO',
-    'PUERTO RICO B',
-    'STALINGRAD',
-    'CARNOT',
-    'ADMIRAL SCHRÖDER',
-    'ÄGIR',
-    'AL ÄGIR',
-    'MENGCHONG',
-    'ALASKA',
-    'ALASKA B',
-    'CAMBRIDGE',
-    'KRONSHTADT',
-    'CHERBOURG',
-    'METZ',
-    'KNESEBECK',
-    'CONGRESS',
-    'PROTECTOR',
-    'TOULON',
-    'GOUDEN LEEUW',
-    'SCHILL',
-    'SCHILL B',
-    'ADMIRAL SCHEER',
-    'DEUTSCHLAND',
-    'JOHAN DE WITT'
-]
-GRAF_SPEE_LIST = [
-    'ADMIRAL GRAF SPEE',
-    'HSF ADMIRAL GRAF SPEE'
-]
-
 class TipDamageShower(object):
     def __init__(self):
         events.onObserverdShipChanged(self.onObserverdShipChanged)
@@ -73,36 +21,9 @@ class TipDamageShower(object):
         modernizations = vehicle.getModernizations()
         signals = vehicle.getSignals()
         skillList = battle.getLearnedCrewSkills()
-
-        if vehicle.name in GRAF_SPEE_LIST:
-            baseBurnDurationTime = 45
-            baseBurnDPS = 0.3
-            baseFloodDurationTime = 40
-            baseFloodDPS = 0.375
-        elif (vehicle.subtype == constants.ShipTypes.BATTLESHIP) or (vehicle.name in EXCEPTIONAL_SHIP_LIST):
-            baseBurnDurationTime = 60
-            baseBurnDPS = 0.3
-            baseFloodDurationTime = 40
-            baseFloodDPS = 0.5
-        elif vehicle.subtype == constants.ShipTypes.AIRCARRIER:
-            baseBurnDurationTime = 45
-            baseBurnDPS = 0.3
-            baseFloodDurationTime = 30
-            baseFloodDPS = 0.25
-        elif vehicle.subtype == constants.ShipTypes.SUBMARINE:
-            baseBurnDurationTime = 30
-            baseBurnDPS = 1
-            baseFloodDurationTime = 30
-            baseFloodDPS = 0.33
-        else:
-            baseBurnDurationTime = 30
-            baseBurnDPS = 0.3
-            baseFloodDurationTime = 40
-            baseFloodDPS = 0.25
         
         modBurnTimeMult = 1.0
         modFloodTimeMult = 1.0
-         
         
         if (len(modernizations) >= 4) and (modernizations[3] is not None) and (modernizations[3].iconPath == 'url:../modernization_icons/icon_modernization_PCM023_DamageControl_Mod_II.png'):
             modBurnTimeMult *= 0.85
@@ -126,10 +47,10 @@ class TipDamageShower(object):
         signalFloodTimeMult = 0.8 if JYB_exists else 1.0
 
         data = dict(
-            burnDurationTime = baseBurnDurationTime * modBurnTimeMult * skillTimeMult1 * skillTimeMult2 * signalBurnTimeMult,
-            burnDPS = baseBurnDPS * skillDamageMult,
-            floodDurationTime = baseFloodDurationTime * modFloodTimeMult * skillTimeMult1 * skillTimeMult2 * signalFloodTimeMult,
-            floodDPS = baseFloodDPS * skillDamageMult,
+            burnDurationMult = modBurnTimeMult * skillTimeMult1 * skillTimeMult2 * signalBurnTimeMult,
+            burnDPSMult = skillDamageMult,
+            floodDurationMult = modFloodTimeMult * skillTimeMult1 * skillTimeMult2 * signalFloodTimeMult,
+            floodDPSMult = skillDamageMult,
         )
         ui.updateUiElementData(self._uiId, data)
 

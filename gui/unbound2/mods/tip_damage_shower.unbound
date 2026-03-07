@@ -1,3 +1,4 @@
+# \battle\own_ship_health.unbound
 (def constant SHIP_HP_TRANSFORM_COLORS_TIPDAMAGE
 	{ redMultiplier:1,greenMultiplier:1,blueMultiplier:1,alphaMultiplier:1,redOffset:-18,greenOffset:-79,blueOffset:19,alphaOffset:0 }
 )
@@ -41,7 +42,7 @@
 			(bind visible "isAlive")
 		)
 		# mod
-		(element TipDamagedValue entity="entity" shortName="shortName"
+		(element TipDamagedValue entity="entity" shipInfo="shipInfo"
 			(bind visible "isAlive")
 		)
 		# end mod
@@ -52,7 +53,7 @@
 )
 
 # mod
-(def element TipDamagedValue (entity:gfx, shortName:str) layout=true
+(def element TipDamagedValue (entity:gfx, shipInfo:gfx) layout=true
 	(scope
 		(macro HEALTH_PERCENT_AND_ALIVE "entity")
 		
@@ -77,7 +78,6 @@
 		(bind ignitedTime2 "$event.ignitedTime2" init=false watch=false (event "evBurnCountChanged"))
 		(bind ignitedTime3 "$event.ignitedTime3" init=false watch=false (event "evBurnCountChanged"))
 		(bind ignitedTime4 "$event.ignitedTime4" init=false watch=false (event "evBurnCountChanged"))
-							
 		
 		(dispatch evBurnCountChanged args = "{
 				ignitedTime1: damagedBurnModulesCount - prevDamagedBurnModulesCount > 0 ? damagedBurnModulesCount >= 1 ? timerEntity.timer.currentTime : 0
@@ -124,32 +124,39 @@
 		(var modDataEntity:gfx = "modDataEntityWatcher.entity" (event "modDataEntityWatcher.event"))
 		(var modDataComponent:gfx = "modDataEntity ? modDataEntity.mods_DataComponent : null" )
 		(var modData:dict = "modDataComponent ? modDataComponent.data : null" (event "modDataComponent.evDataChanged"))
-		(var burnDurationTime:number = "modData && 'burnDurationTime' in modData ? modData.burnDurationTime : 0")
-		(var burnDPS:number = "modData && 'burnDPS' in modData ? modData.burnDPS : 0")
-		(var floodDurationTime:number = "modData && 'floodDurationTime' in modData ? modData.floodDurationTime : 0")
-		(var floodDPS:number = "modData && 'floodDPS' in modData ? modData.floodDPS : 0")
+		(var burnDurationMult:number = "modData && 'burnDurationMult' in modData ? modData.burnDurationMult : 0")
+		(var burnDPSMult:number = "modData && 'burnDPSMult' in modData ? modData.burnDPSMult : 0")
+		(var floodDurationMult:number = "modData && 'floodDurationMult' in modData ? modData.floodDurationMult : 0")
+		(var floodDPSMult:number = "modData && 'floodDPSMult' in modData ? modData.floodDPSMult : 0")
 		
+		# read tip damage params from TIP_DAMAGE_PARAMS
+		(var baseBurnDurationTime:number = "TIP_DAMAGE_PARAMS[shipInfo.ship.id].burnDuration")
+		(var baseBurnPercentage:number = "TIP_DAMAGE_PARAMS[shipInfo.ship.id].burnPercentage")
+		(var baseFloodDurationTime:number = "TIP_DAMAGE_PARAMS[shipInfo.ship.id].floodDuration")
+		(var baseFloodPercentage:number = "TIP_DAMAGE_PARAMS[shipInfo.ship.id].floodPercentage")
 		
+		# calcurate burn remain times
+		(var burnRemainTime1:number =	"baseBurnDurationTime * burnDurationMult + ignitedTime1 - timerEntity.timer.currentTime" (event "timerEntity.timer.evFrequent"))
+		(var burnRemainTime2:number =	"baseBurnDurationTime * burnDurationMult + ignitedTime2 - timerEntity.timer.currentTime" (event "timerEntity.timer.evFrequent"))
+		(var burnRemainTime3:number =	"baseBurnDurationTime * burnDurationMult + ignitedTime3 - timerEntity.timer.currentTime" (event "timerEntity.timer.evFrequent"))
+		(var burnRemainTime4:number =	"baseBurnDurationTime * burnDurationMult + ignitedTime4 - timerEntity.timer.currentTime" (event "timerEntity.timer.evFrequent"))
 		
-		(var burnRemainTime1:number =	"burnDurationTime + ignitedTime1 - timerEntity.timer.currentTime" (event "timerEntity.timer.evFrequent"))
-		(var burnRemainTime2:number =	"burnDurationTime + ignitedTime2 - timerEntity.timer.currentTime" (event "timerEntity.timer.evFrequent"))
-		(var burnRemainTime3:number =	"burnDurationTime + ignitedTime3 - timerEntity.timer.currentTime" (event "timerEntity.timer.evFrequent"))
-		(var burnRemainTime4:number =	"burnDurationTime + ignitedTime4 - timerEntity.timer.currentTime" (event "timerEntity.timer.evFrequent"))
-		
+		# set 0 if fires go out naturally
 		(bind burnRemainTime1 "burnRemainTime1 < 0 || ignitedTime1 == 0 ? 0 : burnRemainTime1")
 		(bind burnRemainTime2 "burnRemainTime2 < 0 || ignitedTime2 == 0 ? 0 : burnRemainTime2")
 		(bind burnRemainTime3 "burnRemainTime3 < 0 || ignitedTime3 == 0 ? 0 : burnRemainTime3")
 		(bind burnRemainTime4 "burnRemainTime4 < 0 || ignitedTime4 == 0 ? 0 : burnRemainTime4")
 		
+		# calcurate flood remain times
+		(var floodRemainTime1:number =	"baseFloodDurationTime * floodDurationMult + floodedTime1 - timerEntity.timer.currentTime" (event "timerEntity.timer.evFrequent"))
+		(var floodRemainTime2:number =	"baseFloodDurationTime * floodDurationMult + floodedTime2 - timerEntity.timer.currentTime" (event "timerEntity.timer.evFrequent"))
 		
-		(var floodRemainTime1:number =	"floodDurationTime + floodedTime1 - timerEntity.timer.currentTime" (event "timerEntity.timer.evFrequent"))
-		(var floodRemainTime2:number =	"floodDurationTime + floodedTime2 - timerEntity.timer.currentTime" (event "timerEntity.timer.evFrequent"))
-		
+		# set 0 if floods stop naturally
 		(bind floodRemainTime1 "floodRemainTime1 < 0 || floodedTime1 == 0 ? 0 : floodRemainTime1")
 		(bind floodRemainTime2 "floodRemainTime2 < 0 || floodedTime2 == 0 ? 0 : floodRemainTime2")
 		
 		
-		(var tmpWidth:number = "100% * (healthPercent - burnDPS / 100 * (burnRemainTime1 + burnRemainTime2 + burnRemainTime3 + burnRemainTime4) - floodDPS /100 * (floodRemainTime1 + floodRemainTime2))")
+		(var tmpWidth:number = "100% * (healthPercent - baseBurnPercentage * burnDPSMult / 100 * (burnRemainTime1 + burnRemainTime2 + burnRemainTime3 + burnRemainTime4) - baseFloodPercentage * floodDPSMult /100 * (floodRemainTime1 + floodRemainTime2))")
 		(var healthDelta:number = "isOnboardingDone ? healthComponent.delta : FAKE_HEALTH_DELTA_PARTHP" (event "healthComponent.evDeltaChanged"))
 
 		(var resultWidth:number = "tmpWidth < 0 ? 0 : tmpWidth")
@@ -161,7 +168,7 @@
 		(left = 50%)
 		(marginLeft = -50%)
 		(backgroundSize = "autosize")
-		(bind backgroundImage "'img://gui/ship_bars/'  +  shortName  +  '_h.png'")	
+		(bind backgroundImage "'img://gui/ship_bars/'  +  shipInfo.ship.shortName  +  '_h.png'")	
 	)
 
 	(block
@@ -174,6 +181,7 @@
 		(isMask = true)
 	)
 	(bind colorTransform "healthPercent > 0.8 ? SHIP_HP_TRANSFORM_COLORS.GREEN : healthPercent > 0.3 ? SHIP_HP_TRANSFORM_COLORS.YELLOW : SHIP_HP_TRANSFORM_COLORS.RED")
+	#(bind colorTransform "SHIP_HP_TRANSFORM_COLORS_TIPDAMAGE")
 )
 # end mod
 
