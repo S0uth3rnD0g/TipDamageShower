@@ -215,10 +215,22 @@
         'floodDuration': 40.0,
         'floodPercentage': 0.5
     },
+    '3330258640': {
+        'burnDuration': 45.0,
+        'burnPercentage': 0.3,
+        'floodDuration': 40.0,
+        'floodPercentage': 0.5
+    },
     '3330258928': {
         'burnDuration': 45.0,
         'burnPercentage': 0.3,
         'floodDuration': 30.0,
+        'floodPercentage': 0.25
+    },
+    '3331208656': {
+        'burnDuration': 30.0,
+        'burnPercentage': 0.3,
+        'floodDuration': 40.0,
         'floodPercentage': 0.25
     },
     '3331241680': {
@@ -233,6 +245,12 @@
         'floodDuration': 40.0,
         'floodPercentage': 0.5
     },
+    '3332289744': {
+        'burnDuration': 30.0,
+        'burnPercentage': 0.3,
+        'floodDuration': 40.0,
+        'floodPercentage': 0.25
+    },
     '3332290256': {
         'burnDuration': 30.0,
         'burnPercentage': 0.3,
@@ -246,6 +264,12 @@
         'floodPercentage': 0.5
     },
     '3332323120': {
+        'burnDuration': 60.0,
+        'burnPercentage': 0.3,
+        'floodDuration': 40.0,
+        'floodPercentage': 0.5
+    },
+    '3332323312': {
         'burnDuration': 60.0,
         'burnPercentage': 0.3,
         'floodDuration': 40.0,
@@ -419,6 +443,12 @@
         'floodDuration': 40.0,
         'floodPercentage': 0.5
     },
+    '3341760240': {
+        'burnDuration': 60.0,
+        'burnPercentage': 0.3,
+        'floodDuration': 40.0,
+        'floodPercentage': 0.5
+    },
     '3341760336': {
         'burnDuration': 60.0,
         'burnPercentage': 0.3,
@@ -456,6 +486,12 @@
         'floodPercentage': 0.5
     },
     '3342808880': {
+        'burnDuration': 60.0,
+        'burnPercentage': 0.3,
+        'floodDuration': 40.0,
+        'floodPercentage': 0.5
+    },
+    '3342808912': {
         'burnDuration': 60.0,
         'burnPercentage': 0.3,
         'floodDuration': 40.0,
@@ -911,6 +947,12 @@
         'floodDuration': 40.0,
         'floodPercentage': 0.5
     },
+    '3530470608': {
+        'burnDuration': 30.0,
+        'burnPercentage': 0.3,
+        'floodDuration': 40.0,
+        'floodPercentage': 0.25
+    },
     '3530471120': {
         'burnDuration': 30.0,
         'burnPercentage': 0.3,
@@ -924,6 +966,12 @@
         'floodPercentage': 0.25
     },
     '3530471216': {
+        'burnDuration': 30.0,
+        'burnPercentage': 0.3,
+        'floodDuration': 40.0,
+        'floodPercentage': 0.25
+    },
+    '3530471408': {
         'burnDuration': 30.0,
         'burnPercentage': 0.3,
         'floodDuration': 40.0,
@@ -1462,6 +1510,12 @@
         'burnPercentage': 0.3,
         'floodDuration': 40.0,
         'floodPercentage': 0.25
+    },
+    '3550426448': {
+        'burnDuration': 60.0,
+        'burnPercentage': 0.3,
+        'floodDuration': 40.0,
+        'floodPercentage': 0.5
     },
     '3550426480': {
         'burnDuration': 60.0,
