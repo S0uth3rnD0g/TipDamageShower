@@ -20,10 +20,12 @@ class TipDamageShower(object):
             return
         modernizations = vehicle.getModernizations()
         signals = vehicle.getSignals()
-        skillList = battle.getLearnedCrewSkills()
+        skills = battle.getLearnedCrewSkills()
         
         modBurnTimeMult = 1.0
         modFloodTimeMult = 1.0
+        modBurnDamageMult = 1.0
+        modFloodDamageMult = 1.0
         
         if (len(modernizations) >= 4) and (modernizations[3] is not None) and (modernizations[3].iconPath == 'url:../modernization_icons/icon_modernization_PCM023_DamageControl_Mod_II.png'):
             modBurnTimeMult *= 0.85
@@ -34,11 +36,27 @@ class TipDamageShower(object):
         if (len(modernizations) >= 5) and (modernizations[4] is not None) and (modernizations[4].iconPath == 'url:../modernization_icons/icon_modernization_PCM049_Special_Mod_I_Hindenburg.png'):
             modBurnTimeMult *= 0.5
             modFloodTimeMult *= 0.5
+        if (len(modernizations) >= 6) and (modernizations[5] is not None) and (modernizations[5].iconPath == 'url:../modernization_icons/icon_modernization_PCM044_Special_Mod_I_Republique.png'):
+            modBurnTimeMult *= 1.15
+            modFloodTimeMult *= 1.15
+        if (len(modernizations) >= 2) and (modernizations[1] is not None) and (modernizations[1].iconPath == 'url:../modernization_icons/icon_modernization_PCM100_DamageControl_Mod_III.png'):
+            modBurnDamageMult *= 0.95
+            modFloodDamageMult *= 0.95
         
-        skillTimeMult1 = 0.85 if 'DefenceCritFireFlooding' in skillList else 1.0
-        skillTimeMult2 = 1.25 if 'ApDamageBb' in skillList else 1.0
-        skillDamageMult = 0.9 if 'ApDamageBb' in skillList else 1.0
-
+        skillBurnTimeMult = 1.0
+        skillFloodTimeMult = 1.0
+        skillBurnDamageMult = 1.0
+        skillFloodDamageMult = 1.0
+        
+        if 'DefenceCritFireFlooding' in skills:
+            skillBurnTimeMult *= 0.85
+            skillFloodTimeMult *= 0.85
+        if 'ApDamageBb' in skills:
+            skillBurnTimeMult *= 1.25
+            skillFloodTimeMult *= 1.25
+            skillBurnDamageMult *= 0.9
+            skillFloodDamageMult *= 0.9
+            
         existing_ids = {s.id for s in signals if s is not None}
         IY_exists = 4286410672 in existing_ids
         JYB_exists = 4285362096 in existing_ids
@@ -47,10 +65,10 @@ class TipDamageShower(object):
         signalFloodTimeMult = 0.8 if JYB_exists else 1.0
 
         data = dict(
-            burnDurationMult = modBurnTimeMult * skillTimeMult1 * skillTimeMult2 * signalBurnTimeMult,
-            burnDPSMult = skillDamageMult,
-            floodDurationMult = modFloodTimeMult * skillTimeMult1 * skillTimeMult2 * signalFloodTimeMult,
-            floodDPSMult = skillDamageMult,
+            burnDurationMult = modBurnTimeMult * skillBurnTimeMult * signalBurnTimeMult,
+            burnDPSMult = modBurnDamageMult * skillBurnDamageMult,
+            floodDurationMult = modFloodTimeMult * skillFloodTimeMult * signalFloodTimeMult,
+            floodDPSMult = modFloodDamageMult * skillFloodDamageMult,
         )
         ui.updateUiElementData(self._uiId, data)
 
