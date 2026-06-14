@@ -181,7 +181,6 @@
 		(isMask = true)
 	)
 	(bind colorTransform "healthPercent > 0.8 ? SHIP_HP_TRANSFORM_COLORS.GREEN : healthPercent > 0.3 ? SHIP_HP_TRANSFORM_COLORS.YELLOW : SHIP_HP_TRANSFORM_COLORS.RED")
-	#(bind colorTransform "SHIP_HP_TRANSFORM_COLORS_TIPDAMAGE")
 )
 # end mod
 
@@ -207,8 +206,8 @@
 
 		(controller $Animation
 			(bindcall play
-							delay= "healthDelta >=0 ? HEALTH_ANI_DELAY : 0"
-							duration = "healthDelta >=0 ? HEALTH_ANI_MAX : HEALTH_ANI_MIN"
+							delay = "healthDelta >=0 ? HEALTH_REGEN_ANI_DELAY : HEALTH_ANI_NO_DELAY"
+							duration = "healthDelta >=0 ? HEALTH_REGEN_ANI_MAX : HEALTH_ANI_MIN"
 							action="killAll"
 							watch = false
 							easing="Easing.quad_in"
